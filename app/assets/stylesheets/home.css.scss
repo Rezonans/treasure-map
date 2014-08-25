@@ -1,0 +1,78 @@
+.pole__table {
+  border: 1px solid #4dabe4;
+}
+
+.pole__cell {
+  background: #4dabe4;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.pole__button {
+  line-height: 50px;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  -webkit-transition: background 300ms;
+  -moz-transition: background 300ms;
+  -ms-transition: background 300ms;
+  -o-transition: background 300ms;
+  transition: background 300ms;
+  content: "";
+  position: absolute;
+}
+
+.pole__button-add {
+  background: #f1a417;
+  margin: 2px 0 0 2px;
+}
+
+.pole__button-add:hover {
+  background: #ffaf17;
+}
+
+.pole__button-remove {
+  display: none;
+  margin: 0 2px 2px 0;
+  background: #B00100;
+}
+
+.pole__button-remove:hover {
+  background: #940100;
+}
+
+.pole__button-remove-visible {
+  display: block;
+}
+
+.pole__remove-row {
+  right: 100%;
+}
+
+.pole__remove-col {
+  bottom: 100%;
+}
+
+.pole__add-row {
+  top: 100%;
+}
+
+.pole__add-col {
+  left: 100%;
+}
+
+.pole {
+  display: inline-block;
+  margin: 100px;
+  position: relative;
+}
+
+.pole__black-hole-index {
+  vertical-align: sub;
+}
