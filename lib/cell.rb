@@ -68,6 +68,8 @@ class Cell
       def result_coordinates
         if @from.name == :stream
           direction = direction(@from.coordinates, @to.coordinates)
+          # if previous cell has the same direction as current of
+          # next cell has the opposite direction as current
           if @from.params[:direction].to_sym == direction || opposite_direction(@to.params[:direction]) == direction
             offsets = Step.offsets(@to.params[:direction])
             return [@to.coordinates[0] + offsets[0], @to.coordinates[1] + offsets[1]]
