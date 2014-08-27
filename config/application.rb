@@ -21,7 +21,5 @@ module TreasureMap
     # config.i18n.default_locale = :de
 
     config.autoload_paths << Rails.root.join("lib")
-
-    config.serve_static_assets = true
   end
 end

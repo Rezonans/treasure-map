@@ -41,3 +41,4 @@ gem 'spring',        group: :development
 gem 'font-awesome-rails'
 gem 'angularjs-rails'
 gem 'lodash-rails'
+gem 'rails_12factor', group: :production
