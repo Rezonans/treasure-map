@@ -1,13 +1,60 @@
-<div class="pole">
-  <div class="pole__add-row pole__button pole__button-add"><i class="fa fa-plus"></i></div>
-  <div class="pole__add-col pole__button pole__button-add"><i class="fa fa-plus"></i></div>
-  <div class="pole__remove-row pole__button pole__button-remove"><i class="fa fa-minus"></i></div>
-  <div class="pole__remove-col pole__button pole__button-remove"><i class="fa fa-minus"></i></div>
-  <table class="pole__table">
-    <tr class="pole__row">
-      <td class="pole__cell"></td>
+<div class="field" ng-controller="FieldController as field">
+  <div class="field__add-row field__button field__button-add" ng-click="field.addRow()"><i class="fa fa-plus"></i></div>
+  <div class="field__add-col field__button field__button-add" ng-click="field.addCol()"><i class="fa fa-plus"></i></div>
+  <div class="field__remove-row field__button field__button-remove" ng-click="field.removeRow()"
+        ng-style="{top: field.rowRemoverTop}" ng-show="field.showRowRemover"
+        ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
+    <i class="fa fa-minus"></i>
+  </div>
+  <div class="field__remove-col field__button field__button-remove" ng-click="field.removeCol()"
+       ng-style="{left: field.colRemoverLeft}" ng-show="field.showColRemover"
+       ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
+    <i class="fa fa-minus"></i>
+  </div>
+
+  <div class="field__state-checker" ng-controller="StateCheckerController as stateChecker"
+        ng-show="stateChecker.visible" ng-style="{left: stateChecker.positionLeft, top: stateChecker.positionTop}">
+    <div class="field__state" ng-repeat="state in stateChecker.availableStates"
+         ng-click="stateChecker.checkState(state)" ng-mouseenter="showParams = true" ng-mouseleave="showParams = false">
+      <div class="field__state-icon-wrapper"><i class="fa" ng-class="state.className"></i></div>
+      <div class="field__state-params" ng-if="state.editableParams" ng-show="showParams">
+        <input ng-repeat="(name, value) in state.editableParams" class="field__state-params-field" type="text"
+               ng-model="state.editableParams[name]" onclick="(arguments[0] || window.event).stopPropagation()"/>
+      </div>
+    </div>
+  </div>
+
+  <table class="field__table" ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
+    <tr class="field__row" ng-repeat="row in field.cells">
+      <td class="field__cell" ng-repeat="cell in row"
+          ng-mouseenter="field.moveRemovers($event, $index, $parent.$index)"
+          ng-click="field.cellClick($event, $index, $parent.$index)">
+        <i class="fa" ng-class="cell.className"></i>
+        <div class="field__cell-params">
+          <div class="field__cell-param" ng-repeat="(name, value) in cell.editableParams">
+              <span class="field__cell-param-name">{{name}}</span>:
+              <span class="field__cell-param-val">{{value}}</span>
+          </div>
+        </div>
+      </td>
     </tr>
   </table>
 </div>
 
-<button class="create-server">Create server</button>
+<button ng-controller="CreateServerController as createServer"
+        class="create-server" ng-click="createServer.create()">Create server</button>
+
+<div class="current-fields" ng-controller="CurrentFieldsController as currentFields">
+  <div class="current-fields__field" ng-repeat="field in currentFields.fields">
+    <div class="current-fields__url">POST {{field.url}}</div>
+    <div class="current-fields__params"><b>Params:</b> field_id: {{field.field_id}}, client_id: &lt;digit&gt;, direction: [up | right | down | left]</div>
+    <table class="field__table">
+      <tr class="field__row" ng-repeat="row in field.cells">
+        <td class="field__cell" ng-repeat="cell in row">
+          <i class="fa" ng-class="cell.className"></i>
+        </td>
+      </tr>
+    </table>
+    <button ng-click="currentFields.remove(field.field_id)">Remove</button>
+  </div>
+</div>

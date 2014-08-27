@@ -1,8 +1,64 @@
-.pole__table {
+.field__state {
+  height: 30px;
+  line-height: 30px;
+  border-bottom: 1px solid #50a4cc;
+  text-align: center;
+  position: relative;
+}
+
+.field__state-params {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  background: #60c6f0;
+  padding: 0 10px;
+}
+
+.field__state-params.ng-animate {
+  -webkit-transition: left 200ms;
+  -moz-transition: left 200ms;
+  -ms-transition: left 200ms;
+  -o-transition: left 200ms;
+  transition: left 200ms;
+}
+
+.field__state-params.ng-hide {
+  left: 0;
+}
+
+.field__state-icon-wrapper {
+  background: #60c6f0;
+  position: relative;
+  z-index: 2;
+}
+
+.field__state-icon-wrapper:hover {
+  background: #5bb6df;
+  cursor: pointer;
+}
+
+.field__cell-params {
+  font: 10px Arial;
+}
+
+.field__state-params-field {
+  width: 20px;
+  font: 15px Arial;
+  text-align: center;
+  border: 1px solid #50a4cc;
+}
+
+.field__state-checker {
+  width: 50px;
+  position: absolute;
+  box-shadow: #4A8EAA 1px 1px 5px;
+}
+
+.field__table {
   border: 1px solid #4dabe4;
 }
 
-.pole__cell {
+.field__cell {
   background: #4dabe4;
   width: 50px;
   height: 50px;
@@ -11,7 +67,7 @@
   text-align: center;
 }
 
-.pole__button {
+.field__button {
   line-height: 50px;
   width: 50px;
   height: 50px;
@@ -28,51 +84,63 @@
   position: absolute;
 }
 
-.pole__button-add {
+.field__button-add {
   background: #f1a417;
   margin: 2px 0 0 2px;
 }
 
-.pole__button-add:hover {
+.field__button-add:hover {
   background: #ffaf17;
 }
 
-.pole__button-remove {
-  display: none;
+.field__button-remove {
   margin: 0 2px 2px 0;
   background: #B00100;
+  opacity: 1;
 }
 
-.pole__button-remove:hover {
+.field__button-remove.ng-animate {
+  -webkit-transition: opacity 500ms;
+  -moz-transition: opacity 500ms;
+  -ms-transition: opacity 500ms;
+  -o-transition: opacity 500ms;
+  transition: opacity 500ms;
+}
+
+.field__button-remove.ng-hide {
+  opacity: 0;
+}
+
+.field__button-remove:hover {
   background: #940100;
 }
 
-.pole__button-remove-visible {
+.field__button-remove-visible {
   display: block;
 }
 
-.pole__remove-row {
+.field__remove-row {
   right: 100%;
 }
 
-.pole__remove-col {
+.field__remove-col {
   bottom: 100%;
 }
 
-.pole__add-row {
+.field__add-row {
   top: 100%;
 }
 
-.pole__add-col {
+.field__add-col {
   left: 100%;
 }
 
-.pole {
+.field {
   display: inline-block;
   margin: 100px;
   position: relative;
 }
 
-.pole__black-hole-index {
+.field__black-hole-index {
   vertical-align: sub;
 }

@@ -1,215 +1,240 @@
-$(function () {
-    var pole = new Pole('.pole');
+var app = angular.module('treasureMap', ['ngAnimate']);
 
-    $('.create-server').click(function () {
-        $.post('/fields', {
+app.factory('fieldCells', ['$rootScope', '$http', function ($rootScope, $http) {
+    var cells = [[{}]],
+        cellsByConditions = function (conditionsFn) {
+            return cells.reduce(function (res, row, j) {
+                return res.concat(row.reduce(function (rowRes, cell, i) {
+                    if (conditionsFn(cell, i, j)) {
+                        rowRes.push({cell: cell, coordinates: [i, j]});
+                    }
+                    return rowRes;
+                }, []));
+            }, []);
+        };
+
+
+    $rootScope.$on('createServer', function () {
+        window.cells = cells;
+
+        $http.post('/fields', {
             field: {
-                cells: JSON.stringify(pole.cells.map(function (rows) {
-                    return rows.map(function (cell) { return cell.state; });
-                }))
+                cells: angular.toJson(cells)
             }
-        }).done(function () {
-            console.log(arguments);
+        }).success(function () {
+            alert('ok');
         });
     });
-});
 
-var Pole = function (selector) {
-    var elem = $(selector),
-        addRowElem = elem.find('.pole__add-row'),
-        addColElem = elem.find('.pole__add-col'),
-        removeButtons = elem.find('.pole__button-remove'),
-        removeRowElem = removeButtons.filter('.pole__remove-row'),
-        removeColElem = removeButtons.filter('.pole__remove-col'),
-        that = this;
+    return {
+        cells: cells,
+        columnsCount: function () { return this.cells[0].length; },
+        rowsCount: function () { return this.cells.length; },
+        cellByCoordinates: function (coordinates) {
+            return cells[coordinates[1]][coordinates[0]]
+        },
+        cellsByName: function (name) {
+            return cellsByConditions(function (cell) {return cell.name == name});
+        },
+        updateCell: function (coordinates, state) {
+            var cell = this.cellByCoordinates(coordinates);
+            $.extend(cell, _.cloneDeep(state));
+            $rootScope.$emit('fieldCells.update');
+        },
+        addRow: function () {
+            this.cells.push(_.times(this.columnsCount(), function () { return {}; }))
+            $rootScope.$emit('fieldCells.update');
+        },
+        removeRow: function (y) {
+            this.cells.splice(y, 1);
+            $rootScope.$emit('fieldCells.update');
+        },
+        addCol: function () {
+            this.cells.forEach(function (row) { row.push({}); });
+            $rootScope.$emit('fieldCells.update');
+        },
+        removeCol: function (x) {
+            this.cells.forEach(function (row) { row.splice(x, 1); });
+            $rootScope.$emit('fieldCells.update');
+        }
+    };
+}]);
 
-    this.elem = elem;
-    this.colsNum = 1;
-    this.rowsNum = 1;
-    this.cells = [[]];
+app.controller('FieldController', ['$scope', '$timeout', 'fieldCells', function($scope, $timeout, fieldCells) {
+    var field = this;
 
-    var tId;
-    elem.on('mouseenter', '.pole__cell, .pole__button-remove', function (e) {
-        clearTimeout(tId);
-        removeRowElem.css({top: $(e.currentTarget).position().top});
-        removeColElem.css({left: $(e.currentTarget).position().left});
-    }).on('mouseenter', '.pole__cell', function (e) {
-        removeRowElem.attr('data-num', $(e.target).parent('tr').prevAll().length);
-        removeColElem.attr('data-num', $(e.target).prevAll().length);
+    this.showRowRemover = false;
+    this.showColRemover = false;
 
-        that.rowsNum > 1 && removeRowElem.addClass('pole__button-remove-visible');
-        that.colsNum > 1 && removeColElem.addClass('pole__button-remove-visible');
-    }).on('mouseenter', '.pole__button-remove', function (e) {
-        removeButtons.removeClass('pole__button-remove-visible');
-        $(e.currentTarget).addClass('pole__button-remove-visible');
-    }).on('mouseleave', '.pole__cell, .pole__button-remove', function () {
-        tId = setTimeout(function () {
-            removeButtons.removeClass('pole__button-remove-visible');
+    this.cells = fieldCells.cells;
+
+    this.addRow = fieldCells.addRow.bind(fieldCells);
+    this.addCol = fieldCells.addCol.bind(fieldCells);
+
+    this.moveRemovers = function (e, x, y) {
+        var pos = $(e.currentTarget).position();
+        this.rowRemoverTop = pos.top;
+        this.colRemoverLeft = pos.left;
+        this.removersCoordinates = [x, y];
+    };
+
+    this.mouseEnterHandler = function () {
+        $timeout.cancel(timeoutPromise);
+        fieldCells.rowsCount() > 1 && (this.showRowRemover = true);
+        fieldCells.columnsCount() > 1 && (this.showColRemover = true);
+    };
+
+    var timeoutPromise;
+
+    this.mouseLeaveHandler = function () {
+        var that = this;
+        timeoutPromise = $timeout(function() {
+            that.showRowRemover = false;
+            that.showColRemover = false;
         }, 300);
-    }).on('click', '.pole__cell', function (e) {
-        $(e.currentTarget).data('cell', $(e.currentTarget).data('cell') || new Cell($(e.currentTarget), that));
-        var cell = $(e.currentTarget).data('cell'),
-            j = $(e.currentTarget).prevAll().length,
-            i = $(e.currentTarget).parent('tr').prevAll().length;
+    };
 
-        that.cells[i] = that.cells[i] || [];
-        that.cells[i][j] = cell;
+    this.removeRow = function () {
+        fieldCells.removeRow(this.removersCoordinates[1]);
+    };
 
-        cell.newState();
+    this.removeCol = function () {
+        fieldCells.removeCol(this.removersCoordinates[0]);
+    };
+
+    this.cellClick = function (e, x, y) {
+        var target = $(e.currentTarget),
+            pos = target.position();
+        e.stopPropagation();
+        $scope.$broadcast('field.cell.click', {
+            positionLeft: pos.left,
+            positionTop: pos.top + target.height(),
+            coordinates: [x, y]
+        });
+    };
+}]);
+
+(function () {
+    var states = [
+        {
+            name: 'wall',
+            className: ''
+        },
+        {
+            name: 'stream',
+            className: 'fa-long-arrow-up',
+            params: {
+                direction: 'up'
+            },
+            editableParams: {
+                power: 1
+            }
+        },
+        {
+            name: 'stream',
+            className: 'fa-long-arrow-right',
+            params: {
+                direction: 'right'
+            },
+            editableParams: {
+                power: 1
+            }
+        },
+        {
+            name: 'stream',
+            className: 'fa-long-arrow-down',
+            params: {
+                direction: 'down'
+            },
+            editableParams: {
+                power: 1
+            }
+        },
+        {
+            name: 'stream',
+            className: 'fa-long-arrow-left',
+            params: {
+                direction: 'left'
+            },
+            editableParams: {
+                power: 1
+            }
+        },
+        {
+            name: 'blackhole',
+            className: 'fa-recycle',
+            editableParams: {
+                num: 1
+            }
+        },
+        {
+            name: 'earth',
+            className: 'fa-globe'
+        },
+        {
+            name: 'treasure',
+            className: 'fa-gift'
+        },
+        {
+            name: 'alien',
+            className: 'fa-drupal'
+        },
+        {
+            name: 'moon',
+            className: 'fa-moon-o'
+        }
+    ];
+
+    app.controller('StateCheckerController', ['$scope', '$rootScope', '$document', 'fieldCells', function($scope, $rootScope, $document, fieldCells) {
+        var stateChecker = this;
+
+        this.cells = fieldCells.cells;
+        this.visible = false;
+        this.availableStates = states;
+
+        this.checkState = function (state) {
+            fieldCells.updateCell(stateChecker.coordinates, state);
+        };
+
+        $scope.$on('field.cell.click', function (e, data) {
+            $.extend(stateChecker, data);
+            stateChecker.visible = !stateChecker.visible;
+        });
+
+        $document.bind('click', function () {
+            $scope.$apply(function () {
+                stateChecker.visible = false;
+            });
+        });
+
+        $rootScope.$on('fieldCells.update', function () {
+            stateChecker.availableStates = states.filter(function (state) {
+                if (['moon', 'earth', 'treasure'].indexOf(state.name) === -1) {
+                    return true;
+                } else {
+                    return fieldCells.cellsByName(state.name).length === 0;
+                }
+            });
+        });
+    }]);
+})();
+
+app.controller('CreateServerController', ['$rootScope', function ($rootScope) {
+    this.create = function () {
+        $rootScope.$emit('createServer');
+    };
+}]);
+
+app.controller('CurrentFieldsController', ['$http', function ($http) {
+    var currentFields = this;
+    this.fields = [];
+    $http.get('/fields').success(function (data) {
+        currentFields.fields = data;
     });
 
-    addRowElem.click(this.addRowHandler.bind(this));
-    addColElem.click(this.addColHandler.bind(this));
-
-    removeRowElem.click(function () {
-        that.rowsNum --;
-        $('tr').eq($(this).attr('data-num')).remove();
-        removeButtons.removeClass('pole__button-remove-visible');
-    });
-
-    removeColElem.click(function () {
-        var num = parseInt($(this).attr('data-num')) + 1;
-        that.colsNum --;
-        $('tr td:nth-child(' + num + ')').remove();
-        removeButtons.removeClass('pole__button-remove-visible');
-    });
-};
-
-Pole.prototype.findCellsByName = function (name) {
-    return Array.prototype.concat.apply([], this.cells).filter(function (cell) {
-        return cell.state.name === name;
-    });
-};
-
-Pole.prototype.tplCell = '<td class="pole__cell"></td>';
-Pole.prototype.tplRow = '<tr>{{cells}}</tr>';
-
-Pole.prototype.addRowHandler = function () {
-    var cells = new Array(this.colsNum + 1).join(this.tplCell);
-    this.rowsNum++;
-    this.elem.find('tr:last').after(this.tplRow.replace('{{cells}}', cells));
-};
-
-Pole.prototype.addColHandler = function () {
-    this.colsNum++;
-    this.elem.find('tr').append(this.tplCell);
-};
-
-var Cell = function (elem, pole) {
-    this.stateIndex = 0;
-
-    this.state = {};
-    this.elem = elem;
-    this.pole = pole;
-};
-
-Cell.prototype.states = [
-    {
-        className: '',
-        name: null
-    },
-    {
-        className: 'fa-long-arrow-up',
-        name: 'stream',
-        params: {
-            direction: 'up'
-        }
-    },
-    {
-        className: 'fa-long-arrow-right',
-        name: 'stream',
-        params: {
-            direction: 'right'
-        }
-    },
-    {
-        className: 'fa-long-arrow-down',
-        name: 'stream',
-        params: {
-            direction: 'down'
-        }
-    },
-    {
-        className: 'fa-long-arrow-left',
-        name: 'stream',
-        params: {
-            direction: 'left'
-        }
-    },
-    {
-        className: 'fa-recycle',
-        name: 'blackhole'
-    },
-    {
-        className: 'fa-globe',
-        name: 'earth'
-    },
-    {
-        className: 'fa-gift',
-        name: 'treasure'
-    },
-    {
-        className: 'fa-drupal',
-        name: 'alien'
-    },
-    {
-        className: 'fa-moon-o',
-        name: 'moon'
+    this.remove = function (id) {
+        $http.delete('/fields/' + id).success(function () {
+            alert('ok');
+        });
     }
-];
-
-Cell.prototype.nextState = function () {
-    this.stateIndex++;
-    this.stateIndex >= this.states.length && (this.stateIndex = 0);
-
-    this.state.name = this.states[this.stateIndex].name;
-    this.state.params = jQuery.extend({}, this.states[this.stateIndex].params);
-
-    this.stateHandlers(this.state);
-
-    return this.state;
-};
-
-Cell.prototype.stateHandlers = function (state) {
-    if (state.name === 'blackhole') {
-        state.params.num = this.pole.findCellsByName('blackhole').length;
-    }
-
-    if (state.name === 'earth') {
-        if (this.pole.findCellsByName('earth').length - 1) {
-            this.nextState();
-        }
-    }
-
-    if (state.name === 'treasure') {
-        if (this.pole.findCellsByName('treasure').length - 1) {
-            this.nextState();
-        }
-    }
-
-    if (state.name === 'moon') {
-        if (this.pole.findCellsByName('moon').length - 1) {
-            this.nextState();
-        }
-    }
-};
-
-
-Cell.prototype.newState = function () {
-    this.nextState();
-    this.updateState();
-};
-
-Cell.prototype.updateState = function () {
-    this.elem.find('.fa').remove();
-    this.elem.append(this.tplIcon(this.stateIndex));
-};
-
-Cell.prototype.tplIcon = function (index) {
-    var sub = '';
-    if (index === 5) {
-        sub = this.state.params.num;
-    }
-    return '<i class="fa ' + this.states[index].className + '">' +
-        '<span class="pole__black-hole-index">' + sub + '</span>' + '</i>';
-};
+}]);
