@@ -42,3 +42,5 @@ gem 'font-awesome-rails'
 gem 'angularjs-rails'
 gem 'lodash-rails'
 gem 'rails_12factor', group: :production
+gem 'slim-rails'
+gem 'angular-rails-templates'

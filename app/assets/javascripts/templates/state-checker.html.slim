@@ -1,0 +1,6 @@
+.field__state-checker ng-show="stateChecker.visible" ng-style="{left: stateChecker.positionLeft, top: stateChecker.positionTop}"
+  .field__state ng-repeat="state in stateChecker.availableStates" ng-click="stateChecker.checkState(state)" ng-mouseenter="showParams = true" ng-mouseleave="showParams = false"
+    .field__state-icon-wrapper
+      i.fa ng-class="state.className"
+    .field__state-params ng-if="state.editableParams" ng-show="showParams"
+      input.field__state-params-field ng-repeat="(name, value) in state.editableParams" type="text" ng-model="state.editableParams[name]" onclick="(arguments[0] || window.event).stopPropagation()"

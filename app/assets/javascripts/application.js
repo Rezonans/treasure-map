@@ -16,4 +16,6 @@
 //= require lodash
 //= require angular
 //= require angular-animate
+//= require angular-rails-templates
 //= require_tree .
+//= require_tree ./templates

@@ -21,5 +21,6 @@ module TreasureMap
     # config.i18n.default_locale = :de
 
     config.autoload_paths << Rails.root.join("lib")
+    config.angular_templates.markups = %w(erb slim)
   end
 end
