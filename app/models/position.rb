@@ -11,8 +11,8 @@ class Position < ActiveRecord::Base
       position = self.new(client_id: client_id, field_id: field_id)
       start = position.field.start_coordinates
 
-      position.x = start[0]
-      position.y = start[1]
+      position.x = start[:x]
+      position.y = start[:y]
 
       position
     end
@@ -21,12 +21,9 @@ class Position < ActiveRecord::Base
     def move(client_id, field_id, direction)
       position = self.find_or_init(client_id, field_id)
 
-      cell = position.field.cell([position.x, position.y])
+      cell = position.field.cell(x: position.x, y: position.y)
       step = cell.step(direction)
-
-      result_coordinates = step.result_coordinates
-
-      position.update_attributes x: result_coordinates[0], y: result_coordinates[1]
+      position.update_attributes step.new_position_params
 
       step.to
     end

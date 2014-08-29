@@ -11,8 +11,8 @@ class Field < ActiveRecord::Base
 
   # Cell object by coordinates
   def cell(coordinates)
-    x = coordinates[0]
-    y = coordinates[1]
+    x = coordinates[:x]
+    y = coordinates[:y]
 
     if x < 0 || y < 0 || x >= self.width || y >= self.height
       Cell.new(:wall, self, coordinates)
@@ -45,7 +45,7 @@ class Field < ActiveRecord::Base
       row.each_with_index.inject(nil) do |cell_res, (cell, i)|
         cell = cell.deep_symbolize_keys
         if condition.call(cell)
-          return [i, j]
+          return {x: i, y: j}
         end
       end
     end
