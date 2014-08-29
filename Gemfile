@@ -44,3 +44,9 @@ gem 'lodash-rails'
 gem 'rails_12factor', group: :production
 gem 'slim-rails'
 gem 'angular-rails-templates'
+
+group :test do
+  gem 'rspec-rails'
+  gem 'database_cleaner'
+  gem 'factory_girl_rails'
+end
