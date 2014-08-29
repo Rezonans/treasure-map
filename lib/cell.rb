@@ -9,13 +9,13 @@ class Cell
     ATTRIBUTES.each_with_index{|attr, i| instance_variable_set("@#{attr}", arguments[i]) }
     raise ArgumentError, 'name must be one of ' + TYPES.to_s unless TYPES.include?(@name)
     raise ArgumentError, 'second argument (field) must be Field type' unless @field.kind_of?(Field)
-    raise ArgumentError, 'coordinates must be Array of 2 integers' unless @coordinates.kind_of?(Array)
+    raise ArgumentError, 'coordinates must be Hash kind of {x: integer, y: integer}' unless @coordinates.kind_of?(Hash)
   end
 
   # Return Step object in specified direction
   def step(direction)
     offsets = Step::offsets(direction)
-    to = @field.cell([@coordinates[0] + offsets[0], @coordinates[1] + offsets[1]])
+    to = @field.cell(x: @coordinates[:x] + offsets[:x], y: @coordinates[:y] + offsets[:y])
 
     Step.factory(self, to)
   end
@@ -25,10 +25,10 @@ class Cell
 
     # Possible step directions
     STEPS = {
-        up: [0, -1],
-        down: [0, 1],
-        left: [-1, 0],
-        right: [1, 0]
+        up: {x: 0, y: -1},
+        down: {x: 0, y: 1},
+        left: {x: -1, y: 0},
+        right: {x: 1, y: 0}
     }
 
     # Cell type <=> step class name hash
@@ -46,7 +46,7 @@ class Cell
     end
 
     # May be redefined in specific cell
-    def result_coordinates
+    def new_position_params
       @to.coordinates
     end
 
@@ -65,7 +65,7 @@ class Cell
     end
 
     class StreamStep < Step
-      def result_coordinates
+      def new_position_params
         if @from.name == :stream
           direction = direction(@from.coordinates, @to.coordinates)
           # if previous cell has the same direction as current of
@@ -74,7 +74,7 @@ class Cell
             to = @to
             @to.params[:power].to_i.times do
               offsets = Step.offsets(to.params[:direction])
-              to = @field.cell([to.coordinates[0] + offsets[0], to.coordinates[1] + offsets[1]])
+              to = @field.cell(x: to.coordinates[:x] + offsets[:x], y: to.coordinates[:y] + offsets[:y])
             end
             return to.coordinates
           end
@@ -86,7 +86,7 @@ class Cell
       private
 
       def direction(from, to)
-        direction_by_offsets([to[0] - from[0], to[1] - from[1]])
+        direction_by_offsets(x: to[:x] - from[:x], y: to[:y] - from[:y])
       end
 
       def direction_by_offsets(offsets)
@@ -94,24 +94,24 @@ class Cell
       end
 
       def opposite_direction(direction)
-        direction_by_offsets(Step.offsets(direction).map {|e| e * -1})
+        direction_by_offsets(Hash[Step.offsets(direction).map{ |k, v| [k, v * -1] }])
       end
     end
 
     class BlackholeStep < Step
-      def result_coordinates
+      def new_position_params
         @field.blackhole_coordinates(@to.params[:num] + 1) || @field.blackhole_coordinates(1)
       end
     end
 
     class AlienStep < Step
-      def result_coordinates
-        @field.cell_coordinates_by_name(:moon)
+      def new_position_params
+        @field.cell_coordinates_by_name(:moon).merge(treasure: false)
       end
     end
 
     class WallStep < Step
-      def result_coordinates
+      def new_position_params
         @from.coordinates
       end
     end
