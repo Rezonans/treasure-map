@@ -18,7 +18,8 @@ class Field < ActiveRecord::Base
       Cell.new(:wall, self, coordinates)
     else
       cell_data = self.cells[y][x].deep_symbolize_keys
-      Cell.new(cell_data[:name].to_sym, self, coordinates, cell_data[:params])
+      params = (cell_data[:params] || {}).merge(cell_data[:editableParams] || {})
+      Cell.new(cell_data[:name].to_sym, self, coordinates, params)
     end
   end
 
