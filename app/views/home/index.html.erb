@@ -12,17 +12,7 @@
     <i class="fa fa-minus"></i>
   </div>
 
-  <div class="field__state-checker" ng-controller="StateCheckerController as stateChecker"
-        ng-show="stateChecker.visible" ng-style="{left: stateChecker.positionLeft, top: stateChecker.positionTop}">
-    <div class="field__state" ng-repeat="state in stateChecker.availableStates"
-         ng-click="stateChecker.checkState(state)" ng-mouseenter="showParams = true" ng-mouseleave="showParams = false">
-      <div class="field__state-icon-wrapper"><i class="fa" ng-class="state.className"></i></div>
-      <div class="field__state-params" ng-if="state.editableParams" ng-show="showParams">
-        <input ng-repeat="(name, value) in state.editableParams" class="field__state-params-field" type="text"
-               ng-model="state.editableParams[name]" onclick="(arguments[0] || window.event).stopPropagation()"/>
-      </div>
-    </div>
-  </div>
+  <state-checker></state-checker>
 
   <table class="field__table" ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
     <tr class="field__row" ng-repeat="row in field.cells">
