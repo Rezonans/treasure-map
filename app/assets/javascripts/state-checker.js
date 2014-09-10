@@ -1,14 +1,14 @@
 (function(){
-    angular.module('stateChecker', ['templates']).directive('stateChecker', function() {
+    var app = angular.module('stateChecker', ['templates']).directive('stateChecker', function() {
         return {
             restrict: 'E',
             templateUrl: 'state-checker.html',
-            controller: ['$scope', '$rootScope', '$document', 'fieldCells', function($scope, $rootScope, $document, fieldCells) {
+            controller: ['$scope', '$rootScope', '$document', 'fieldCells', 'cellTypes', function($scope, $rootScope, $document, fieldCells, cellTypes) {
                 var stateChecker = this;
 
                 this.cells = fieldCells.cells;
                 this.visible = false;
-                this.availableStates = states;
+                this.availableStates = cellTypes.values;
 
                 this.checkState = function (state) {
                     fieldCells.updateCell(stateChecker.coordinates, state);
@@ -26,7 +26,7 @@
                 });
 
                 $rootScope.$on('fieldCells.update', function () {
-                    stateChecker.availableStates = states.filter(function (state) {
+                    stateChecker.availableStates = cellTypes.values.filter(function (state) {
                         if (['moon', 'earth', 'treasure'].indexOf(state.name) === -1) {
                             return true;
                         } else {
@@ -39,74 +39,85 @@
         };
     });
 
-    var states = [
-        {
-            name: 'wall',
-            className: ''
-        },
-        {
-            name: 'stream',
-            className: 'fa-long-arrow-up',
-            params: {
-                direction: 'up'
+    app.factory('cellTypes', function() {
+        var values = [
+            {
+                name: 'wall',
+                className: ''
             },
-            editableParams: {
-                power: 1
-            }
-        },
-        {
-            name: 'stream',
-            className: 'fa-long-arrow-right',
-            params: {
-                direction: 'right'
+            {
+                name: 'stream',
+                className: 'fa-long-arrow-up',
+                params: {
+                    direction: 'up'
+                },
+                editableParams: {
+                    power: 1
+                }
             },
-            editableParams: {
-                power: 1
-            }
-        },
-        {
-            name: 'stream',
-            className: 'fa-long-arrow-down',
-            params: {
-                direction: 'down'
+            {
+                name: 'stream',
+                className: 'fa-long-arrow-right',
+                params: {
+                    direction: 'right'
+                },
+                editableParams: {
+                    power: 1
+                }
             },
-            editableParams: {
-                power: 1
-            }
-        },
-        {
-            name: 'stream',
-            className: 'fa-long-arrow-left',
-            params: {
-                direction: 'left'
+            {
+                name: 'stream',
+                className: 'fa-long-arrow-down',
+                params: {
+                    direction: 'down'
+                },
+                editableParams: {
+                    power: 1
+                }
             },
-            editableParams: {
-                power: 1
+            {
+                name: 'stream',
+                className: 'fa-long-arrow-left',
+                params: {
+                    direction: 'left'
+                },
+                editableParams: {
+                    power: 1
+                }
+            },
+            {
+                name: 'blackhole',
+                className: 'fa-recycle',
+                editableParams: {
+                    num: 1
+                }
+            },
+            {
+                name: 'earth',
+                className: 'fa-globe'
+            },
+            {
+                name: 'treasure',
+                className: 'fa-gift'
+            },
+            {
+                name: 'alien',
+                className: 'fa-drupal'
+            },
+            {
+                name: 'moon',
+                className: 'fa-moon-o'
             }
-        },
-        {
-            name: 'blackhole',
-            className: 'fa-recycle',
-            editableParams: {
-                num: 1
+        ];
+
+        return {
+            values: values,
+            find: function (params) {
+                return _.clone(_.find(values, function(type) {
+                    return _.isEqual(_.merge({}, type, params), type);
+                }), true);
             }
-        },
-        {
-            name: 'earth',
-            className: 'fa-globe'
-        },
-        {
-            name: 'treasure',
-            className: 'fa-gift'
-        },
-        {
-            name: 'alien',
-            className: 'fa-drupal'
-        },
-        {
-            name: 'moon',
-            className: 'fa-moon-o'
-        }
-    ];
+        };
+    });
 
 })();

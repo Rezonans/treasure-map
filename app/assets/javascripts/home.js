@@ -1,4 +1,4 @@
-var app = angular.module('treasureMap', ['ngAnimate', 'stateChecker']);
+var app = angular.module('treasureMap', ['ngAnimate', 'stateChecker', 'randomField']);
 
 app.factory('fieldCells', ['$rootScope', '$http', function ($rootScope, $http) {
     var cells = [[{}]],
@@ -42,19 +42,19 @@ app.factory('fieldCells', ['$rootScope', '$http', function ($rootScope, $http) {
             $rootScope.$emit('fieldCells.update');
         },
         addRow: function () {
-            this.cells.push(_.times(this.columnsCount(), function () { return {}; }))
+            cells.push(_.times(this.columnsCount(), function () { return {}; }));
             $rootScope.$emit('fieldCells.update');
         },
         removeRow: function (y) {
-            this.cells.splice(y, 1);
+            cells.splice(y, 1);
             $rootScope.$emit('fieldCells.update');
         },
         addCol: function () {
-            this.cells.forEach(function (row) { row.push({}); });
+            cells.forEach(function (row) { row.push({}); });
             $rootScope.$emit('fieldCells.update');
         },
         removeCol: function (x) {
-            this.cells.forEach(function (row) { row.splice(x, 1); });
+            cells.forEach(function (row) { row.splice(x, 1); });
             $rootScope.$emit('fieldCells.update');
         }
     };
@@ -70,6 +70,11 @@ app.controller('FieldController', ['$scope', '$timeout', 'fieldCells', function(
 
     this.addRow = fieldCells.addRow.bind(fieldCells);
     this.addCol = fieldCells.addCol.bind(fieldCells);
+
+    this.replaceCells = function(newCells) {
+        field.cells.length = 0;
+        $.extend(field.cells, newCells);
+    };
 
     this.moveRemovers = function (e, x, y) {
         var pos = $(e.currentTarget).position();
