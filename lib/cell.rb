@@ -52,7 +52,7 @@ class Cell
 
     class << self
       def step_class(name)
-        TYPES_CLASSES[name] && const_defined?(TYPES_CLASSES[name]) && const_get(TYPES_CLASSES[name]) || Step
+        TYPES_CLASSES[name].to_s.constantize rescue Step
       end
 
       def factory(from, to)
