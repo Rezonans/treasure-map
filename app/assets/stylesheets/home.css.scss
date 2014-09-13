@@ -4,6 +4,7 @@
   border-bottom: 1px solid #50a4cc;
   text-align: center;
   position: relative;
+  box-sizing: content-box;
 }
 
 .field__state-params {
@@ -42,7 +43,7 @@
 }
 
 .field__state-params-field {
-  width: 20px;
+  width: 35px;
   font: 15px Arial;
   text-align: center;
   border: 1px solid #50a4cc;
@@ -56,11 +57,14 @@
 
 .field__table {
   border: 1px solid #4dabe4;
+  border-spacing: 2px;
+  border-collapse: separate;
 }
 
 .field__cell {
   background: #4dabe4;
   width: 50px;
+  min-width: 50px;
   height: 50px;
   padding: 0;
   vertical-align: middle;
@@ -137,10 +141,58 @@
 
 .field {
   display: inline-block;
-  margin: 100px;
+  margin: 52px;
   position: relative;
 }
 
 .field__black-hole-index {
   vertical-align: sub;
+}
+
+.random-field {
+  padding-right: 20px;
+  border-right: 1px solid #ddd;
+}
+
+.random-field__title {
+  line-height: 32px;
+}
+
+.field-wrapper {
+  display: table;
+  width: 100%;
+  padding: 10px 20px;
+}
+
+.field-wrapper__col {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.field-wrapper__col-left {
+  width: 20%;
+}
+
+.field-wrapper__col-right {
+  width: 80%;
+  padding: 0 20px;
+}
+
+.create-server-wrapper {
+  text-align: center;
+  padding: 20px 0 0;
+  margin: 0 30px;
+  border-top: 1px solid #ddd;
+}
+
+.current-fields {
+  padding: 0 30px;
+}
+
+.current-fields__field {
+  margin: 25px 0 ;
+}
+
+.current-field__table {
+  margin: 10px 0;
 }

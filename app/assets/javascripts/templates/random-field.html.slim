@@ -1,7 +1,13 @@
-div
-  label for="weight" Weight:
-  input type="number" name="width" min="3" value="6" ng-model="width"
-  label for="height" Height:
-  input type="number" name="height" min="3" value="6" ng-model="height"
-  button ng-click="randomField.create(field)"
-    'Random field
+form.form-horizontal.random-field__form role="form"
+  h4.random-field__title Random field generator
+  .form-group
+    label.col-sm-4.control-label for="random-field__width" Width
+    .col-sm-8
+      input#random-field__width.form-control type="number" name="width" min="3" ng-model="width" placeholder="Width"
+  .form-group
+    label.col-sm-4.control-label for="random-field__height" Height
+    .col-sm-8
+      input#random-field__height.form-control type="number" name="height" min="3" ng-model="height" placeholder="Height"
+  .form-group
+    .col-sm-offset-4.col-sm-8
+      button.btn.btn-default ng-click="randomField.create(field)" Random field

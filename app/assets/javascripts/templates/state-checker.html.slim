@@ -3,4 +3,4 @@
     .field__state-icon-wrapper
       i.fa ng-class="state.className"
     .field__state-params ng-if="state.editableParams" ng-show="showParams"
-      input.field__state-params-field ng-repeat="(name, value) in state.editableParams" type="text" ng-model="state.editableParams[name]" onclick="(arguments[0] || window.event).stopPropagation()"
+      input.field__state-params-field ng-repeat="(name, value) in state.editableParams" type="number" ng-model="state.editableParams[name]" onclick="(arguments[0] || window.event).stopPropagation()"

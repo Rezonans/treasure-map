@@ -1,7 +1,7 @@
-<div ng-controller="FieldController as field">
+<div ng-controller="FieldController as field" class="field-wrapper">
+  <random-field class="random-field field-wrapper__col field-wrapper__col-left"></random-field>
 
-    <random-field></random-field>
-
+  <div class="field-wrapper__col field-wrapper__col-right">
     <div class="field">
       <div class="field__add-row field__button field__button-add" ng-click="field.addRow()"><i class="fa fa-plus"></i></div>
       <div class="field__add-col field__button field__button-add" ng-click="field.addCol()"><i class="fa fa-plus"></i></div>
@@ -34,22 +34,36 @@
         </tr>
       </table>
     </div>
+  </div>
 </div>
 
-<button ng-controller="CreateServerController as createServer"
-        class="create-server" ng-click="createServer.create()">Create server</button>
+<div class="create-server-wrapper">
+    <button ng-controller="CreateServerController as createServer"
+            class="btn btn-primary create-server" ng-click="createServer.create()">
+      <span class="glyphicon glyphicon-plus"></span> Create server
+    </button>
+</div>
 
 <div class="current-fields" ng-controller="CurrentFieldsController as currentFields">
+  <h3>Current fields</h3>
   <div class="current-fields__field" ng-repeat="field in currentFields.fields">
     <div class="current-fields__url">POST {{field.url}}</div>
     <div class="current-fields__params"><b>Params:</b> field_id: {{field.field_id}}, client_id: &lt;digit&gt;, direction: [up | right | down | left]</div>
-    <table class="field__table">
+    <table class="field__table current-field__table">
       <tr class="field__row" ng-repeat="row in field.cells">
         <td class="field__cell" ng-repeat="cell in row">
           <i class="fa" ng-class="cell.className"></i>
+          <div class="field__cell-params">
+            <div class="field__cell-param" ng-repeat="(name, value) in cell.editableParams">
+              <span class="field__cell-param-name">{{name}}</span>:
+              <span class="field__cell-param-val">{{value}}</span>
+            </div>
+          </div>
         </td>
       </tr>
     </table>
-    <button ng-click="currentFields.remove(field.field_id)">Remove</button>
+    <button class="btn btn-warning btn-sm" ng-click="currentFields.remove(field.field_id)">
+      <span class="glyphicon glyphicon-remove-circle"></span> Remove
+    </button>
   </div>
 </div>
