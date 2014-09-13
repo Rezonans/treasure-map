@@ -1,64 +1,4 @@
-var app = angular.module('treasureMap', ['ngAnimate', 'stateChecker']);
-
-app.factory('fieldCells', ['$rootScope', '$http', function ($rootScope, $http) {
-    var cells = [[{}]],
-        cellsByConditions = function (conditionsFn) {
-            return cells.reduce(function (res, row, j) {
-                return res.concat(row.reduce(function (rowRes, cell, i) {
-                    if (conditionsFn(cell, i, j)) {
-                        rowRes.push({cell: cell, coordinates: [i, j]});
-                    }
-                    return rowRes;
-                }, []));
-            }, []);
-        };
-
-
-    $rootScope.$on('createServer', function () {
-        window.cells = cells;
-
-        $http.post('/fields', {
-            field: {
-                cells: angular.toJson(cells)
-            }
-        }).success(function () {
-            alert('ok');
-        });
-    });
-
-    return {
-        cells: cells,
-        columnsCount: function () { return this.cells[0].length; },
-        rowsCount: function () { return this.cells.length; },
-        cellByCoordinates: function (coordinates) {
-            return cells[coordinates[1]][coordinates[0]]
-        },
-        cellsByName: function (name) {
-            return cellsByConditions(function (cell) {return cell.name == name});
-        },
-        updateCell: function (coordinates, state) {
-            var cell = this.cellByCoordinates(coordinates);
-            $.extend(cell, _.cloneDeep(state));
-            $rootScope.$emit('fieldCells.update');
-        },
-        addRow: function () {
-            this.cells.push(_.times(this.columnsCount(), function () { return {}; }))
-            $rootScope.$emit('fieldCells.update');
-        },
-        removeRow: function (y) {
-            this.cells.splice(y, 1);
-            $rootScope.$emit('fieldCells.update');
-        },
-        addCol: function () {
-            this.cells.forEach(function (row) { row.push({}); });
-            $rootScope.$emit('fieldCells.update');
-        },
-        removeCol: function (x) {
-            this.cells.forEach(function (row) { row.splice(x, 1); });
-            $rootScope.$emit('fieldCells.update');
-        }
-    };
-}]);
+var app = angular.module('treasureMap', ['ngAnimate', 'stateChecker', 'randomField']);
 
 app.controller('FieldController', ['$scope', '$timeout', 'fieldCells', function($scope, $timeout, fieldCells) {
     var field = this;
@@ -70,6 +10,11 @@ app.controller('FieldController', ['$scope', '$timeout', 'fieldCells', function(
 
     this.addRow = fieldCells.addRow.bind(fieldCells);
     this.addCol = fieldCells.addCol.bind(fieldCells);
+
+    this.replaceCells = function(newCells) {
+        field.cells.length = 0;
+        $.extend(field.cells, newCells);
+    };
 
     this.moveRemovers = function (e, x, y) {
         var pos = $(e.currentTarget).position();

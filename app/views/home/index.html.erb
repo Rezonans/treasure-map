@@ -1,34 +1,39 @@
-<div class="field" ng-controller="FieldController as field">
-  <div class="field__add-row field__button field__button-add" ng-click="field.addRow()"><i class="fa fa-plus"></i></div>
-  <div class="field__add-col field__button field__button-add" ng-click="field.addCol()"><i class="fa fa-plus"></i></div>
-  <div class="field__remove-row field__button field__button-remove" ng-click="field.removeRow()"
-        ng-style="{top: field.rowRemoverTop}" ng-show="field.showRowRemover"
-        ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
-    <i class="fa fa-minus"></i>
-  </div>
-  <div class="field__remove-col field__button field__button-remove" ng-click="field.removeCol()"
-       ng-style="{left: field.colRemoverLeft}" ng-show="field.showColRemover"
-       ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
-    <i class="fa fa-minus"></i>
-  </div>
+<div ng-controller="FieldController as field">
 
-  <state-checker></state-checker>
+    <random-field></random-field>
 
-  <table class="field__table" ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
-    <tr class="field__row" ng-repeat="row in field.cells">
-      <td class="field__cell" ng-repeat="cell in row"
-          ng-mouseenter="field.moveRemovers($event, $index, $parent.$index)"
-          ng-click="field.cellClick($event, $index, $parent.$index)">
-        <i class="fa" ng-class="cell.className"></i>
-        <div class="field__cell-params">
-          <div class="field__cell-param" ng-repeat="(name, value) in cell.editableParams">
-              <span class="field__cell-param-name">{{name}}</span>:
-              <span class="field__cell-param-val">{{value}}</span>
-          </div>
-        </div>
-      </td>
-    </tr>
-  </table>
+    <div class="field">
+      <div class="field__add-row field__button field__button-add" ng-click="field.addRow()"><i class="fa fa-plus"></i></div>
+      <div class="field__add-col field__button field__button-add" ng-click="field.addCol()"><i class="fa fa-plus"></i></div>
+      <div class="field__remove-row field__button field__button-remove" ng-click="field.removeRow()"
+            ng-style="{top: field.rowRemoverTop}" ng-show="field.showRowRemover"
+            ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
+        <i class="fa fa-minus"></i>
+      </div>
+      <div class="field__remove-col field__button field__button-remove" ng-click="field.removeCol()"
+           ng-style="{left: field.colRemoverLeft}" ng-show="field.showColRemover"
+           ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
+        <i class="fa fa-minus"></i>
+      </div>
+
+      <state-checker></state-checker>
+
+      <table class="field__table" ng-mouseenter="field.mouseEnterHandler()" ng-mouseleave="field.mouseLeaveHandler()">
+        <tr class="field__row" ng-repeat="row in field.cells">
+          <td class="field__cell" ng-repeat="cell in row track by $index"
+              ng-mouseenter="field.moveRemovers($event, $index, $parent.$index)"
+              ng-click="field.cellClick($event, $index, $parent.$index)">
+            <i class="fa" ng-class="cell.className"></i>
+            <div class="field__cell-params">
+              <div class="field__cell-param" ng-repeat="(name, value) in cell.editableParams">
+                  <span class="field__cell-param-name">{{name}}</span>:
+                  <span class="field__cell-param-val">{{value}}</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
 </div>
 
 <button ng-controller="CreateServerController as createServer"
