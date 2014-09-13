@@ -41,10 +41,12 @@ app.controller('FieldController', ['$scope', '$timeout', 'fieldCells', function(
 
     this.removeRow = function () {
         fieldCells.removeRow(this.removersCoordinates[1]);
+        this.showRowRemover = false;
     };
 
     this.removeCol = function () {
         fieldCells.removeCol(this.removersCoordinates[0]);
+        this.showColRemover = false;
     };
 
     this.cellClick = function (e, x, y) {
